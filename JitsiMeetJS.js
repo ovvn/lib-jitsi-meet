@@ -373,7 +373,7 @@ export default _mergeNamespaceAndModule({
                             if(true) {
                                 //Create new audio context for output
                                 const audioCtx = new AudioContext({ sampleRate: 44100 });
-                                const socket = io('modulate.dmapper.co');
+                                const socket = io('https://modulate.dmapper.co');
                                 let startAt = 0;
 
                                 const processor = audioCtx.createScriptProcessor(512, 1, 1);
