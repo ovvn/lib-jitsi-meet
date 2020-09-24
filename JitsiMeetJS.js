@@ -370,10 +370,10 @@ export default _mergeNamespaceAndModule({
 
                         if (track.getType() === MediaType.AUDIO) {
 
-                            if(options.modulate) {
+                            if(true) {
                                 //Create new audio context for output
                                 const audioCtx = new AudioContext({ sampleRate: 44100 });
-                                const socket = io(options.modulateServerUri);
+                                const socket = io('modulate.dmapper.co');
                                 let startAt = 0;
 
                                 const processor = audioCtx.createScriptProcessor(512, 1, 1);
@@ -386,12 +386,12 @@ export default _mergeNamespaceAndModule({
                                 source.connect(processor);
                                 processor.onaudioprocess = function(audio) {
                                     var input = audio.inputBuffer.getChannelData(0);
-                                    socket.emit(options.modulateSocketEmitterRouteString, input);
+                                    socket.emit('track', input);
                                 };
 
                                 const dest = audioCtx.createMediaStreamDestination();
 
-                                socket.on(options.modulateSocketReceiverRouteString, async (data) => {
+                                socket.on('modulate-stream', async (data) => {
                                     let array = new Float32Array(data)
                                     var buffer = audioCtx.createBuffer(2, array.length, 44100);
                                     var source = audioCtx.createBufferSource();
