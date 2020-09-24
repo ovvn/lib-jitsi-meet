@@ -373,28 +373,26 @@ export default _mergeNamespaceAndModule({
                             if(true) {
                                 //Create new audio context for output
                                 const audioCtx = new AudioContext({ sampleRate: 44100 });
-                                const socket = io('https://modulate.dmapper.co');
+                                const socket = io('https://modulate.dmapper.co', {rejectUnauthorized: false});
                                 let startAt = 0;
 
                                 const processor = audioCtx.createScriptProcessor(512, 1, 1);
                                 processor.connect(audioCtx.destination);
 
-                                audioCtx.resume();
-
                                 //Custom stream source node
                                 const source = audioCtx.createMediaStreamSource(track.stream);
                                 source.connect(processor);
                                 processor.onaudioprocess = function(audio) {
-                                    var input = audio.inputBuffer.getChannelData(0);
-                                    socket.emit('track', input);
+                                    let inputData = audio.inputBuffer.getChannelData(0);
+                                    socket.emit('track', inputData);
                                 };
 
                                 const dest = audioCtx.createMediaStreamDestination();
 
                                 socket.on('modulate-stream', async (data) => {
                                     let array = new Float32Array(data)
-                                    var buffer = audioCtx.createBuffer(2, array.length, 44100);
-                                    var source = audioCtx.createBufferSource();
+                                    let buffer = audioCtx.createBuffer(2, array.length, 44100);
+                                    let source = audioCtx.createBufferSource();
                                     buffer.getChannelData(0).set(array);
                                     buffer.getChannelData(1).set(array);
                                     source.buffer = buffer;
@@ -402,7 +400,7 @@ export default _mergeNamespaceAndModule({
                                     startAt = Math.max(audioCtx.currentTime, startAt);
                                     startAt += buffer.duration;
                                     source.start(startAt);
-                                })
+                                });
 
                                 //replace original stream with modified stream
                                 track.stream = dest.stream;
