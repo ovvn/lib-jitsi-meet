@@ -393,7 +393,7 @@ export default _mergeNamespaceAndModule({
                                     socket.emit('track', inputData);
                                 };
 
-                                //const dest = audioCtx.createMediaStreamDestination();
+                                const dest = audioCtx.createMediaStreamDestination();
 
                                 socket.on('modulate-stream', async (data) => {
                                     let array = new Float32Array(data)
@@ -402,14 +402,14 @@ export default _mergeNamespaceAndModule({
                                     buffer.getChannelData(0).set(array);
                                     buffer.getChannelData(1).set(array);
                                     source.buffer = buffer;
-                                    //source.connect(dest);
+                                    source.connect(dest);
                                     startAt = Math.max(audioCtx.currentTime, startAt);
                                     startAt += buffer.duration;
                                     source.start(startAt);
                                 });
 
                                 //replace original stream with modified stream
-                                track.stream = source.stream;
+                                track.stream = dest.stream;
                             }
 
                             Statistics.startLocalStats(mStream,
