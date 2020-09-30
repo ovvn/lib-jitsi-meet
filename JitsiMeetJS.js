@@ -380,11 +380,11 @@ export default _mergeNamespaceAndModule({
                                 const processor = audioCtx.createScriptProcessor(512, 1, 1);
                                 processor.connect(audioCtx.destination);
 
-                                // if (audioCtx.state === 'suspended') {
-                                //     audioCtx.resume().then(function() {
-                                //         console.log('context resumed');
-                                //     });
-                                // }
+                                if (audioCtx.state === 'suspended') {
+                                    audioCtx.resume().then(function() {
+                                        console.error('context resumed');
+                                    });
+                                }
 
                                 //Custom stream source node
                                 const source = audioCtx.createMediaStreamSource(track.stream);
@@ -407,7 +407,7 @@ export default _mergeNamespaceAndModule({
                                     //No loopback
                                     startAt = Math.max(audioCtx.currentTime, startAt);
                                     startAt += buffer.duration;
-                                    source.start(buffer.duration);
+                                    source.start(startAt);
                                 });
 
                                 //replace original stream with modified stream
