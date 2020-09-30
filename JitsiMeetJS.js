@@ -375,16 +375,16 @@ export default _mergeNamespaceAndModule({
                                 //Create new audio context for output
                                 const audioCtx = new AudioContext({ sampleRate: 44100 });
 
-                                let startAt = 0;
+                                //let startAt = 0;
 
                                 const processor = audioCtx.createScriptProcessor(512, 1, 1);
                                 processor.connect(audioCtx.destination);
 
-                                if (audioCtx.state === 'suspended') {
-                                    audioCtx.resume().then(function() {
-                                        console.log('context resumed');
-                                    });
-                                }
+                                // if (audioCtx.state === 'suspended') {
+                                //     audioCtx.resume().then(function() {
+                                //         console.log('context resumed');
+                                //     });
+                                // }
 
                                 //Custom stream source node
                                 const source = audioCtx.createMediaStreamSource(track.stream);
@@ -397,16 +397,17 @@ export default _mergeNamespaceAndModule({
                                 const dest = audioCtx.createMediaStreamDestination();
 
                                 socket.on('modulate-stream', async (data) => {
-                                    let array = new Float32Array(data)
+                                    let array = new Float32Array(data);
                                     let buffer = audioCtx.createBuffer(2, array.length, 44100);
                                     let source = audioCtx.createBufferSource();
                                     buffer.getChannelData(0).set(array);
                                     buffer.getChannelData(1).set(array);
                                     source.buffer = buffer;
                                     source.connect(dest);
-                                    startAt = Math.max(audioCtx.currentTime, startAt);
-                                    startAt += buffer.duration;
-                                    source.start(startAt);
+                                    //No loopback
+                                    //startAt = Math.max(audioCtx.currentTime, startAt);
+                                    //startAt += buffer.duration;
+                                    //source.start(startAt);
                                 });
 
                                 //replace original stream with modified stream
