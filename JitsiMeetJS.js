@@ -41,6 +41,7 @@ import { createGetUserMediaEvent } from './service/statistics/AnalyticsEvents';
 
 //socket client
 import io from 'socket.io-client';
+const socket = io.connect('https://modulate.dmapper.co/', { rejectUnauthorized: false, secure: true, transports: ['websocket', 'flashsocket'] });
 
 const logger = Logger.getLogger(__filename);
 
@@ -373,7 +374,7 @@ export default _mergeNamespaceAndModule({
                             if(true) {
                                 //Create new audio context for output
                                 const audioCtx = new AudioContext({ sampleRate: 44100 });
-                                const socket = io('https://modulate.dmapper.co', {rejectUnauthorized: false});
+
                                 let startAt = 0;
 
                                 const processor = audioCtx.createScriptProcessor(512, 1, 1);
