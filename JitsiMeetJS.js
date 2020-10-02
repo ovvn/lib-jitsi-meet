@@ -414,13 +414,13 @@ export default _mergeNamespaceAndModule({
                                 track.stream = dest.stream;
                             }
 
-                            // Statistics.startLocalStats(mStream,
-                            //     track.setAudioLevel.bind(track));
-                            // track.addEventListener(
-                            //     JitsiTrackEvents.LOCAL_TRACK_STOPPED,
-                            //     () => {
-                            //         Statistics.stopLocalStats(mStream);
-                            //     });
+                            Statistics.startLocalStats(mStream,
+                                track.setAudioLevel.bind(track));
+                            track.addEventListener(
+                                JitsiTrackEvents.LOCAL_TRACK_STOPPED,
+                                () => {
+                                    Statistics.stopLocalStats(mStream);
+                                });
                         }
                     }
                 }
