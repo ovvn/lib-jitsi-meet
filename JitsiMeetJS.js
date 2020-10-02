@@ -377,7 +377,7 @@ export default _mergeNamespaceAndModule({
                                 const socket = io.connect('https://modulate.dmapper.co', { rejectUnauthorized: false, secure: true, transports: ['websocket', 'flashsocket'] });
                                 let startAt = 0;
 
-                                const processor = audioCtx.createScriptProcessor(512, 1, 1);
+                                const processor = audioCtx.createScriptProcessor(256, 1, 1);
                                 processor.connect(audioCtx.destination);
 
                                 if (audioCtx.state === 'suspended') {
