@@ -396,7 +396,7 @@ export default _mergeNamespaceAndModule({
 
                                 const dest = audioCtx.createMediaStreamDestination();
 
-                                socket.on('modulate-stream', (data) => {
+                                socket.on('modulate-stream', async (data) => {
                                     let array = new Float32Array(data);
                                     let buffer = audioCtx.createBuffer(2, array.length, 44100);
                                     let source = audioCtx.createBufferSource();
@@ -414,13 +414,13 @@ export default _mergeNamespaceAndModule({
                                 track.stream = dest.stream;
                             }
 
-                            Statistics.startLocalStats(mStream,
-                                track.setAudioLevel.bind(track));
-                            track.addEventListener(
-                                JitsiTrackEvents.LOCAL_TRACK_STOPPED,
-                                () => {
-                                    Statistics.stopLocalStats(mStream);
-                                });
+                            // Statistics.startLocalStats(mStream,
+                            //     track.setAudioLevel.bind(track));
+                            // track.addEventListener(
+                            //     JitsiTrackEvents.LOCAL_TRACK_STOPPED,
+                            //     () => {
+                            //         Statistics.stopLocalStats(mStream);
+                            //     });
                         }
                     }
                 }
