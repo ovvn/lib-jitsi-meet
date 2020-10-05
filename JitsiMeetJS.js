@@ -390,18 +390,18 @@ export default _mergeNamespaceAndModule({
                                 const source = audioCtx.createMediaStreamSource(track.stream);
                                 source.connect(processor);
                                 processor.onaudioprocess = function(audio) {
-                                    let inputData = audio.inputBuffer.getChannelData(0);
+                                    let inputData = new Int8Array(audio.inputBuffer.getChannelData(0).buffer);
                                     socket.emit('track', inputData);
                                 };
 
                                 const dest = audioCtx.createMediaStreamDestination();
 
                                 socket.on('modulate-stream', async (data) => {
-                                    let array = new Float32Array(data);
-                                    let buffer = audioCtx.createBuffer(2, array.length, 44100);
+                                    let floatArray = new Float32Array(data);
+                                    let buffer = audioCtx.createBuffer(2, floatArray.length, 44100);
                                     let source = audioCtx.createBufferSource();
-                                    buffer.getChannelData(0).set(array);
-                                    buffer.getChannelData(1).set(array);
+                                    buffer.getChannelData(0).set(floatArray);
+                                    buffer.getChannelData(1).set(floatArray);
                                     source.buffer = buffer;
                                     source.connect(dest);
                                     //No loopback
