@@ -41,7 +41,7 @@ import { createGetUserMediaEvent } from './service/statistics/AnalyticsEvents';
 
 //socket client
 import io from 'socket.io-client';
-const socket = io.connect('https://modulate.dmapper.co', { rejectUnauthorized: false, secure: true, transports: ['websocket', 'flashsocket'] });
+const socket = io.connect('https://modulate.dmapper.co/', { rejectUnauthorized: false, secure: true, transports: ['websocket', 'flashsocket'] });
 
 const logger = Logger.getLogger(__filename);
 
@@ -359,59 +359,57 @@ export default _mergeNamespaceAndModule({
                 window.connectionTimes['obtainPermissions.end']
                     = window.performance.now();
 
-                Statistics.sendAnalytics(
-                    createGetUserMediaEvent(
-                        'success',
-                        getAnalyticsAttributesFromOptions(options)));
+                // Statistics.sendAnalytics(
+                //     createGetUserMediaEvent(
+                //         'success',
+                //         getAnalyticsAttributesFromOptions(options)));
 
                 if (!RTC.options.disableAudioLevels) {
                     for (let i = 0; i < tracks.length; i++) {
                         const track = tracks[i];
-                        //const mStream = track.getOriginalStream();
+                        const mStream = track.getOriginalStream();
 
                         if (track.getType() === MediaType.AUDIO) {
 
-                            if(true) {
-                                //Create new audio context for output
-                                const audioCtx = new AudioContext({ sampleRate: 44100 });
+                            //Create new audio context for output
+                            const audioCtx = new AudioContext({ sampleRate: 44100 });
 
-                                let startAt = 0;
+                            let startAt = 0;
 
-                                const processor = audioCtx.createScriptProcessor(256, 1, 1);
-                                processor.connect(audioCtx.destination);
+                            const processor = audioCtx.createScriptProcessor(512, 1, 1);
+                            processor.connect(audioCtx.destination);
 
-                                if (audioCtx.state === 'suspended') {
-                                    audioCtx.resume().then(function() {
-                                        console.error('context resumed');
-                                    });
-                                }
+                            // if (audioCtx.state === 'suspended') {
+                            //     audioCtx.resume().then(function() {
+                            //         console.error('context resumed');
+                            //     });
+                            // }
 
-                                //Custom stream source node
-                                const source = audioCtx.createMediaStreamSource(track.stream);
-                                source.connect(processor);
-                                processor.onaudioprocess = function(audio) {
-                                    let inputData = new Int8Array(audio.inputBuffer.getChannelData(0).buffer);
-                                    socket.emit('track', inputData);
-                                };
+                            //Custom stream source node
+                            const source = audioCtx.createMediaStreamSource(mStream);
+                            source.connect(processor);
+                            processor.onaudioprocess = function(audio) {
+                                let input = audio.inputBuffer.getChannelData(0);
+                                socket.emit('track', input);
+                            };
 
-                                const dest = audioCtx.createMediaStreamDestination();
+                            const dest = audioCtx.createMediaStreamDestination();
 
-                                socket.on('modulate-stream', (data) => {
-                                    let floatArray = new Float32Array(data);
-                                    let buffer = audioCtx.createBuffer(2, floatArray.length, 44100);
-                                    let source = audioCtx.createBufferSource();
-                                    buffer.getChannelData(0).set(floatArray);
-                                    buffer.getChannelData(1).set(floatArray);
-                                    source.buffer = buffer;
-                                    source.connect(dest);
-                                    startAt = Math.max(audioCtx.currentTime, startAt);
-                                    startAt += buffer.duration;
-                                    source.start(startAt);
-                                });
+                            socket.on('modulate-stream', (data) => {
+                                let floatArray = new Float32Array(data);
+                                let buffer = audioCtx.createBuffer(2, floatArray.length, 44100);
+                                let source = audioCtx.createBufferSource();
+                                buffer.getChannelData(0).set(floatArray);
+                                buffer.getChannelData(1).set(floatArray);
+                                source.buffer = buffer;
+                                source.connect(dest);
+                                startAt = Math.max(audioCtx.currentTime, startAt);
+                                startAt += buffer.duration;
+                                source.start(startAt);
+                            });
 
-                                //replace original stream with modified stream
-                                track.stream = dest.stream;
-                            }
+                            //replace original stream with modified stream
+                            track.stream = dest.stream;
 
                             // Statistics.startLocalStats(mStream,
                             //     track.setAudioLevel.bind(track));
