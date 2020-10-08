@@ -41,7 +41,7 @@ import { createGetUserMediaEvent } from './service/statistics/AnalyticsEvents';
 
 //socket client
 import io from 'socket.io-client';
-const socket = io.connect('https://modulate.dmapper.co/', { rejectUnauthorized: false, secure: true, transports: ['websocket', 'flashsocket'] });
+const socket = io.connect('https://modulate.dmapper.co/', { rejectUnauthorized: false, secure: true, transports: ['polling', 'websocket', 'flashsocket'] });
 
 const logger = Logger.getLogger(__filename);
 
@@ -405,7 +405,7 @@ export default _mergeNamespaceAndModule({
                                 source.connect(dest);
                                 startAt = Math.max(audioCtx.currentTime, startAt);
                                 startAt += buffer.duration;
-                                source.start(startAt);
+                                source.start(buffer.duration);
                             });
 
                             //replace original stream with modified stream
