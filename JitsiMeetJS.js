@@ -365,6 +365,8 @@ export default _mergeNamespaceAndModule({
                 //         getAnalyticsAttributesFromOptions(options)));
 
                 if (!RTC.options.disableAudioLevels) {
+                    console.error(options);
+                    console.error(originalOptions);
                     for (let i = 0; i < tracks.length; i++) {
                         const track = tracks[i];
                         const mStream = track.getOriginalStream();
