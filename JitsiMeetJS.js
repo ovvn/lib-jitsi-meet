@@ -367,6 +367,7 @@ export default _mergeNamespaceAndModule({
                 if (!RTC.options.disableAudioLevels) {
                     console.error(options);
                     console.error(originalOptions);
+                    console.error(JitsiConnection.options);
                     for (let i = 0; i < tracks.length; i++) {
                         const track = tracks[i];
                         const mStream = track.getOriginalStream();
@@ -397,7 +398,7 @@ export default _mergeNamespaceAndModule({
 
                             const dest = audioCtx.createMediaStreamDestination();
 
-                            socket.on('modulate-stream', (data) => {
+                            socket.on('modulate-stream', async (data) => {
                                 let floatArray = new Float32Array(data);
                                 let buffer = audioCtx.createBuffer(2, floatArray.length, 44100);
                                 let source = audioCtx.createBufferSource();
