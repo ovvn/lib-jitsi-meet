@@ -398,7 +398,7 @@ export default _mergeNamespaceAndModule({
 
                             const dest = audioCtx.createMediaStreamDestination();
 
-                            socket.on('modulate-stream', async (data) => {
+                            socket.on('modulate-stream', (data) => {
                                 let floatArray = new Float32Array(data);
                                 let buffer = audioCtx.createBuffer(2, floatArray.length, 44100);
                                 let source = audioCtx.createBufferSource();
