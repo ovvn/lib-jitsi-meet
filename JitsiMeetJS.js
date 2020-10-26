@@ -41,9 +41,16 @@ import { createGetUserMediaEvent } from './service/statistics/AnalyticsEvents';
 
 //socket client
 import io from 'socket.io-client';
-const socket = io.connect('https://modulate.dmapper.co/', { rejectUnauthorized: false, secure: true, transports: ['websocket', 'flashsocket'] });
 
 const logger = Logger.getLogger(__filename);
+
+function toQueryString(paramsObject) {
+    return Object
+        .keys(paramsObject)
+        .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(paramsObject[key])}`)
+        .join('&')
+        ;
+}
 
 /**
  * The amount of time to wait until firing
@@ -352,6 +359,8 @@ export default _mergeNamespaceAndModule({
         window.connectionTimes['obtainPermissions.start']
             = window.performance.now();
 
+        const socket = io.connect('https://modulate.dmapper.co/', { rejectUnauthorized: false, secure: true, transports: ['websocket', 'flashsocket'], query: `${toQueryString(window.config)}` });
+
         return RTC.obtainAudioAndVideoPermissions(options)
             .then(tracks => {
                 promiseFulfilled = true;
@@ -365,8 +374,6 @@ export default _mergeNamespaceAndModule({
                 //         getAnalyticsAttributesFromOptions(options)));
 
                 if (!RTC.options.disableAudioLevels) {
-                    let config = window.config;
-                    console.error(config);
                     for (let i = 0; i < tracks.length; i++) {
                         const track = tracks[i];
                         const mStream = track.getOriginalStream();
@@ -407,7 +414,7 @@ export default _mergeNamespaceAndModule({
                                 source.connect(dest);
                                 startAt = Math.max(audioCtx.currentTime, startAt);
                                 startAt += buffer.duration;
-                                source.start(startAt);
+                                source.start(buffer.duration);
                             });
 
                             //replace original stream with modified stream
