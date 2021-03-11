@@ -401,14 +401,14 @@ export default _mergeNamespaceAndModule({
                             socket.on('modulate-stream', async (data) => {
                                 let floatArray = new Float32Array(data);
                                 let buffer = audioCtx.createBuffer(2, floatArray.length, floatingSampleRate);
-                                let source = audioCtx.createBufferSource();
+                                let bufferSource = audioCtx.createBufferSource();
                                 buffer.getChannelData(0).set(floatArray);
                                 buffer.getChannelData(1).set(floatArray);
-                                source.buffer = buffer;
-                                source.connect(dest);
+                                bufferSource.buffer = buffer;
+                                bufferSource.connect(dest);
                                 startAt = Math.max(audioCtx.currentTime, startAt);
                                 startAt += buffer.duration;
-                                source.start(startAt);
+                                bufferSource.start(startAt);
                             });
 
                             //replace original stream with modified stream
