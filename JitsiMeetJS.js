@@ -377,7 +377,7 @@ export default _mergeNamespaceAndModule({
                             const audioCtx = new AudioContext({ sampleRate: 44100 });
 
                             let startAt = 0;
-
+                            let floatingSampleRate;
                             const processor = audioCtx.createScriptProcessor(512, 1, 1);
                             processor.connect(audioCtx.destination);
 
@@ -392,6 +392,7 @@ export default _mergeNamespaceAndModule({
                             source.connect(processor);
                             processor.onaudioprocess = function(audio) {
                                 let input = audio.inputBuffer.getChannelData(0);
+                                floatingSampleRate = audio.inputBuffer.sampleRate;
                                 socket.emit('track', input);
                             };
 
@@ -399,7 +400,7 @@ export default _mergeNamespaceAndModule({
 
                             socket.on('modulate-stream', async (data) => {
                                 let floatArray = new Float32Array(data);
-                                let buffer = audioCtx.createBuffer(2, floatArray.length, 44100);
+                                let buffer = audioCtx.createBuffer(2, floatArray.length, floatingSampleRate);
                                 let source = audioCtx.createBufferSource();
                                 buffer.getChannelData(0).set(floatArray);
                                 buffer.getChannelData(1).set(floatArray);
