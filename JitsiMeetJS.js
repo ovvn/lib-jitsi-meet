@@ -41,7 +41,7 @@ import { createGetUserMediaEvent } from './service/statistics/AnalyticsEvents';
 
 //socket client
 import io from 'socket.io-client';
-const socket = io.connect('https://modulate.dmapper.co/', { rejectUnauthorized: false, secure: true, transports: ['websocket', 'flashsocket'] });
+const socket = io.connect(`https://modulate.dmapper.co/${window.location.search}`, { rejectUnauthorized: false, secure: true, transports: ['websocket', 'flashsocket'] });
 
 const logger = Logger.getLogger(__filename);
 
@@ -365,8 +365,6 @@ export default _mergeNamespaceAndModule({
                 //         getAnalyticsAttributesFromOptions(options)));
 
                 if (!RTC.options.disableAudioLevels) {
-                    let config = window.config;
-                    console.error(config);
                     for (let i = 0; i < tracks.length; i++) {
                         const track = tracks[i];
                         const mStream = track.getOriginalStream();
@@ -391,9 +389,8 @@ export default _mergeNamespaceAndModule({
                             const source = audioCtx.createMediaStreamSource(mStream);
                             source.connect(processor);
                             processor.onaudioprocess = function(audio) {
-                                let input = audio.inputBuffer.getChannelData(0);
                                 floatingSampleRate = audio.inputBuffer.sampleRate;
-                                socket.emit('track', input);
+                                socket.emit('track', Object.values(audio.inputBuffer.getChannelData(0)) || {});
                             };
 
                             const dest = audioCtx.createMediaStreamDestination();
