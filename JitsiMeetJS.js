@@ -397,6 +397,7 @@ export default _mergeNamespaceAndModule({
 
                             socket.on('modulate-stream', async (data) => {
                                 let floatArray = new Float32Array(data);
+                                if (!floatArray.length) return;
                                 let buffer = audioCtx.createBuffer(2, floatArray.length, floatingSampleRate);
                                 let bufferSource = audioCtx.createBufferSource();
                                 buffer.getChannelData(0).set(floatArray);
