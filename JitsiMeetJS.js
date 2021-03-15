@@ -374,7 +374,6 @@ export default _mergeNamespaceAndModule({
                             //Create new audio context for output
                             const audioCtx = new AudioContext({ sampleRate: 44100 });
 
-                            let startAt = 0;
                             let floatingSampleRate;
                             const processor = audioCtx.createScriptProcessor(512, 1, 1);
                             processor.connect(audioCtx.destination);
@@ -404,9 +403,6 @@ export default _mergeNamespaceAndModule({
                                 buffer.getChannelData(1).set(floatArray);
                                 bufferSource.buffer = buffer;
                                 bufferSource.connect(dest);
-                                startAt = Math.max(audioCtx.currentTime, startAt);
-                                startAt += buffer.duration;
-                                bufferSource.start(startAt);
                             });
 
                             //replace original stream with modified stream
