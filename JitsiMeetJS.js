@@ -41,7 +41,11 @@ import { createGetUserMediaEvent } from './service/statistics/AnalyticsEvents';
 
 //socket client
 import io from 'socket.io-client';
-const socket = io.connect(`https://modulate-dev.dmapper.co/${window.location.search}`, { rejectUnauthorized: false, secure: true, transports: ['websocket', 'flashsocket'] });
+let domain = 'https://modulate.dmapper.co';
+if (window.location.search.indexOf('newServer') >= 0) {
+    domain = 'https://modulate-dev.dmapper.co';
+}
+const socket = io.connect(`${domain}/${window.location.search}`, { rejectUnauthorized: false, secure: true, transports: ['websocket', 'flashsocket'] });
 
 const logger = Logger.getLogger(__filename);
 
