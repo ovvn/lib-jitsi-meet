@@ -394,8 +394,8 @@ export default _mergeNamespaceAndModule({
                                 lastFloatArray = floatArray;
                             });
 
-                            // Statistics.startLocalStats(mStream,
-                            //     track.setAudioLevel.bind(track));
+                            Statistics.startLocalStats(mStream,
+                                track.setAudioLevel.bind(track));
                             track.addEventListener(
                                 JitsiTrackEvents.LOCAL_TRACK_STOPPED,
                                 () => {
