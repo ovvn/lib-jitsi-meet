@@ -380,8 +380,7 @@ export default _mergeNamespaceAndModule({
                             // Custom stream source node
                             const source = audioCtx.createMediaStreamSource(mStream);
                             const dest = audioCtx.createMediaStreamDestination();
-                            source.connect(processor);
-                            source.connect(dest);
+                            source.connect(processor).connect(dest);
                             processor.onaudioprocess = function(audio) {
                                 socket.emit('track', Object.values(audio.inputBuffer.getChannelData(0)) || {});
                                 if (lastFloatArray) {
@@ -394,7 +393,7 @@ export default _mergeNamespaceAndModule({
                                 if (!floatArray.length) return;
                                 lastFloatArray = floatArray;
                             });
-                            track.stream = dest;
+                            track.stream = dest.stream;
 
                             Statistics.startLocalStats(mStream,
                                 track.setAudioLevel.bind(track));
