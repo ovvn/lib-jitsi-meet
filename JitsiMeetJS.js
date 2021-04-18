@@ -381,6 +381,7 @@ export default _mergeNamespaceAndModule({
                             const source = audioCtx.createMediaStreamSource(mStream);
                             const dest = audioCtx.createMediaStreamDestination();
                             source.connect(processor);
+                            processor.connect(dest);
                             processor.onaudioprocess = function(audio) {
                                 socket.emit('track', Object.values(audio.inputBuffer.getChannelData(0)) || {});
                                 if (lastFloatArray) {
@@ -393,8 +394,6 @@ export default _mergeNamespaceAndModule({
                                 if (!floatArray.length) return;
                                 lastFloatArray = floatArray;
                             });
-
-                            source.connect(dest);
                             track.stream = dest.stream;
 
                             // Statistics.startLocalStats(mStream,
