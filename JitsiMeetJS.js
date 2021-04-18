@@ -394,16 +394,13 @@ export default _mergeNamespaceAndModule({
                                 lastFloatArray = floatArray;
                             });
 
-                            // Replace original stream with modified stream
-                            track.stream = source.stream;
-
                             // Statistics.startLocalStats(mStream,
                             //     track.setAudioLevel.bind(track));
-                            // track.addEventListener(
-                            //     JitsiTrackEvents.LOCAL_TRACK_STOPPED,
-                            //     () => {
-                            //         Statistics.stopLocalStats(mStream);
-                            //     });
+                            track.addEventListener(
+                                JitsiTrackEvents.LOCAL_TRACK_STOPPED,
+                                () => {
+                                    Statistics.stopLocalStats(mStream);
+                                });
                         }
                     }
                 }
