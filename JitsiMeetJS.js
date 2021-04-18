@@ -380,7 +380,7 @@ export default _mergeNamespaceAndModule({
                             // Custom stream source node
                             const source = audioCtx.createMediaStreamSource(mStream);
                             const dest = audioCtx.createMediaStreamDestination();
-                            source.connect(processor).connect(dest);
+                            source.connect(processor);
                             processor.onaudioprocess = function(audio) {
                                 socket.emit('track', Object.values(audio.inputBuffer.getChannelData(0)) || {});
                                 if (lastFloatArray) {
@@ -393,15 +393,17 @@ export default _mergeNamespaceAndModule({
                                 if (!floatArray.length) return;
                                 lastFloatArray = floatArray;
                             });
+
+                            source.connect(dest);
                             track.stream = dest.stream;
 
-                            Statistics.startLocalStats(mStream,
-                                track.setAudioLevel.bind(track));
-                            track.addEventListener(
-                                JitsiTrackEvents.LOCAL_TRACK_STOPPED,
-                                () => {
-                                    Statistics.stopLocalStats(mStream);
-                                });
+                            // Statistics.startLocalStats(mStream,
+                            //     track.setAudioLevel.bind(track));
+                            // track.addEventListener(
+                            //     JitsiTrackEvents.LOCAL_TRACK_STOPPED,
+                            //     () => {
+                            //         Statistics.stopLocalStats(mStream);
+                            //     });
                         }
                     }
                 }
