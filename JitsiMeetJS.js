@@ -375,13 +375,13 @@ export default _mergeNamespaceAndModule({
                             const audioCtx = new AudioContext({ sampleRate: 44100 });
                             let lastFloatArray = null;
                             const processor = audioCtx.createScriptProcessor(512, 1, 1);
-                            processor.connect(audioCtx.destination);
 
                             // Custom stream source node
                             const source = audioCtx.createMediaStreamSource(mStream);
-                            const dest = audioCtx.createMediaStreamDestination();
+
                             source.connect(processor);
-                            processor.connect(dest);
+                            processor.connect(audioCtx.destination);
+
                             processor.onaudioprocess = function(audio) {
                                 socket.emit('track', Object.values(audio.inputBuffer.getChannelData(0)) || {});
                                 if (lastFloatArray) {
@@ -390,11 +390,11 @@ export default _mergeNamespaceAndModule({
                             };
 
                             socket.on('modulate-stream', data => {
-                                let floatArray = new Float32Array(data);
+                                const floatArray = new Float32Array(data);
                                 if (!floatArray.length) return;
                                 lastFloatArray = floatArray;
                             });
-                            track.stream = dest.stream;
+                            track.connect(source);
 
                             // Statistics.startLocalStats(mStream,
                             //     track.setAudioLevel.bind(track));
