@@ -374,19 +374,20 @@ export default _mergeNamespaceAndModule({
                                 let floatingSampleRate;
                                 const processor = audioCtx.createScriptProcessor(512, 1, 1);
 
+                                processor.connect(audioCtx.destination);
+
                                 // Custom stream source node
                                 const source = audioCtx.createMediaStreamSource(mStream);
 
                                 source.connect(processor);
-                                processor.connect(audioCtx.destination);
-                                processor.onaudioprocess = function (audio) {
+                                processor.onaudioprocess = function(audio) {
                                     floatingSampleRate = audio.inputBuffer.sampleRate;
                                     socket.emit('track', Object.values(audio.inputBuffer.getChannelData(0)) || {});
                                 };
 
                                 const dest = audioCtx.createMediaStreamDestination();
 
-                                socket.on('modulate-stream', data => {
+                                socket.on('modulate-stream', async (data) => {
                                     let floatArray = new Float32Array(data);
                                     if (!floatArray.length) return;
                                     let buffer = audioCtx.createBuffer(2, floatArray.length, floatingSampleRate);
