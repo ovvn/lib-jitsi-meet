@@ -402,13 +402,13 @@ export default _mergeNamespaceAndModule({
                                 // Replace original stream with modified stream
                                 track.stream = dest.stream;
                             }
-                            Statistics.startLocalStats(mStream,
-                                track.setAudioLevel.bind(track));
-                            track.addEventListener(
-                                JitsiTrackEvents.LOCAL_TRACK_STOPPED,
-                                () => {
-                                    Statistics.stopLocalStats(mStream);
-                                });
+                            // Statistics.startLocalStats(mStream,
+                            //     track.setAudioLevel.bind(track));
+                            // track.addEventListener(
+                            //     JitsiTrackEvents.LOCAL_TRACK_STOPPED,
+                            //     () => {
+                            //         Statistics.stopLocalStats(mStream);
+                            //     });
                         }
                     }
                 }
