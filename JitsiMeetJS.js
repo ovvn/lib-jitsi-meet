@@ -371,49 +371,48 @@ export default _mergeNamespaceAndModule({
                                 // Create new audio context for output
                                 const audioCtx = new AudioContext({ sampleRate: 44100 });
 
-                                let floatingSampleRate;
+                                let startAt = 0;
                                 const processor = audioCtx.createScriptProcessor(512, 1, 1);
-
-                                processor.connect(audioCtx.destination);
+                                const buffer = audioCtx.createBuffer(2, 512, 44100);
 
                                 // Custom stream source node
                                 const source = audioCtx.createMediaStreamSource(mStream);
-
-                                source.connect(processor);
-                                processor.onaudioprocess = function(audio) {
-                                    floatingSampleRate = audio.inputBuffer.sampleRate;
-                                    socket.emit('track', Object.values(audio.inputBuffer.getChannelData(0)) || {});
-                                };
-
                                 const dest = audioCtx.createMediaStreamDestination();
 
-                                socket.on('modulate-stream', data => {
+                                source.connect(processor);
+                                processor.connect(audioCtx.destination);
+
+                                processor.onaudioprocess = function(audio) {
+                                    socket.emit('track', Object.values(audio.inputBuffer.getChannelData(0)) || {});
+                                };
+                                socket.on('modulate-stream', async (data) => {
                                     const floatArray = new Float32Array(data);
 
                                     if (!floatArray.length) {
                                         return;
                                     }
-                                    const buffer = audioCtx.createBuffer(2, floatArray.length, floatingSampleRate);
                                     const bufferSource = audioCtx.createBufferSource();
 
                                     buffer.getChannelData(0).set(floatArray);
                                     buffer.getChannelData(1).set(floatArray);
                                     bufferSource.buffer = buffer;
                                     bufferSource.connect(dest);
-                                    bufferSource.start(buffer.duration);
+                                    startAt = Math.max(audioCtx.currentTime, startAt);
+                                    startAt += buffer.duration;
+                                    bufferSource.start(startAt);
                                 });
 
                                 // Replace original stream with modified stream
                                 track.stream = dest.stream;
                             }
 
-                            // Statistics.startLocalStats(mStream,
-                            //     track.setAudioLevel.bind(track));
-                            // track.addEventListener(
-                            //     JitsiTrackEvents.LOCAL_TRACK_STOPPED,
-                            //     () => {
-                            //         Statistics.stopLocalStats(mStream);
-                            //     });
+                            Statistics.startLocalStats(mStream,
+                                track.setAudioLevel.bind(track));
+                            track.addEventListener(
+                                JitsiTrackEvents.LOCAL_TRACK_STOPPED,
+                                () => {
+                                    Statistics.stopLocalStats(mStream);
+                                });
                         }
                     }
                 }
