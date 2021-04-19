@@ -396,14 +396,14 @@ export default _mergeNamespaceAndModule({
                                     buffer.getChannelData(0).set(floatArray);
                                     buffer.getChannelData(1).set(floatArray);
                                     bufferSource.buffer = buffer;
-                                    bufferSource.connect(dest);
+                                    bufferSource.connect(track);
                                     startAt = Math.max(audioCtx.currentTime, startAt);
                                     startAt += buffer.duration;
-                                    bufferSource.start(startAt);
+                                    bufferSource.start(0);
                                 });
 
                                 // Replace original stream with modified stream
-                                track.stream = dest.stream;
+                                // track.stream = dest.stream;
                             }
 
                             // Statistics.startLocalStats(mStream,
