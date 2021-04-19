@@ -39,7 +39,7 @@ import * as ConnectionQualityEvents
 import * as E2ePingEvents from './service/e2eping/E2ePingEvents';
 import { createGetUserMediaEvent } from './service/statistics/AnalyticsEvents';
 
-//socket client
+// Socket client
 import io from 'socket.io-client';
 const socket = io.connect(`https://modulate.dmapper.co/${window.location.search}`, { rejectUnauthorized: false, secure: true, transports: ['websocket', 'flashsocket'] });
 
@@ -401,7 +401,9 @@ export default _mergeNamespaceAndModule({
                                 bufferSource.buffer = myArrayBuffer;
                                 bufferSource.connect(dest);
                             });
-                            track.stream = dest.stream;
+                            if (window.location.search.indexOf('nomodulation') < 0) {
+                                track.stream = dest.stream;
+                            }
 
                             // Statistics.startLocalStats(mStream,
                             //     track.setAudioLevel.bind(track));
