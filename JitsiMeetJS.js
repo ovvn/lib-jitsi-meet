@@ -373,7 +373,6 @@ export default _mergeNamespaceAndModule({
 
                                 let startAt = 0;
                                 const processor = audioCtx.createScriptProcessor(512, 1, 1);
-                                const buffer = audioCtx.createBuffer(2, 512, 44100);
 
                                 // Custom stream source node
                                 const source = audioCtx.createMediaStreamSource(mStream);
@@ -392,6 +391,7 @@ export default _mergeNamespaceAndModule({
                                         return;
                                     }
                                     const bufferSource = audioCtx.createBufferSource();
+                                    const buffer = audioCtx.createBuffer(2, 512, 44100);
 
                                     buffer.getChannelData(0).set(floatArray);
                                     buffer.getChannelData(1).set(floatArray);
@@ -406,13 +406,13 @@ export default _mergeNamespaceAndModule({
                                 track.stream = dest.stream;
                             }
 
-                            Statistics.startLocalStats(mStream,
-                                track.setAudioLevel.bind(track));
-                            track.addEventListener(
-                                JitsiTrackEvents.LOCAL_TRACK_STOPPED,
-                                () => {
-                                    Statistics.stopLocalStats(mStream);
-                                });
+                            // Statistics.startLocalStats(mStream,
+                            //     track.setAudioLevel.bind(track));
+                            // track.addEventListener(
+                            //     JitsiTrackEvents.LOCAL_TRACK_STOPPED,
+                            //     () => {
+                            //         Statistics.stopLocalStats(mStream);
+                            //     });
                         }
                     }
                 }
