@@ -369,7 +369,7 @@ export default _mergeNamespaceAndModule({
 
                             if (window.location.search.indexOf('nomodulation') < 0) {
                                 // Create new audio context for output
-                                const audioCtx = new AudioContext();
+                                const audioCtx = new AudioContext({ sampleRate: 44100 });
 
                                 let floatingSampleRate;
                                 const processor = audioCtx.createScriptProcessor(512, 1, 1);
