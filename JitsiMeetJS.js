@@ -359,10 +359,7 @@ export default _mergeNamespaceAndModule({
                 window.connectionTimes['obtainPermissions.end']
                     = window.performance.now();
 
-                // Statistics.sendAnalytics(
-                //     createGetUserMediaEvent(
-                //         'success',
-                //         getAnalyticsAttributesFromOptions(options)));
+
                 if (!RTC.options.disableAudioLevels) {
                     for (let i = 0; i < tracks.length; i++) {
                         const track = tracks[i];
@@ -370,48 +367,47 @@ export default _mergeNamespaceAndModule({
 
                         if (track.getType() === MediaType.AUDIO) {
 
-                            // Create new audio context for output
-                            const audioCtx = new AudioContext({ sampleRate: 44100 });
-                            const processor = audioCtx.createScriptProcessor(512, 1, 1);
-
-                            processor.connect(audioCtx.destination);
-                            const myArrayBuffer = audioCtx.createBuffer(2, 512, 44100);
-
-                            // Custom stream source node
-                            const source = audioCtx.createMediaStreamSource(mStream);
-                            const dest = audioCtx.createMediaStreamDestination();
-
-                            source.connect(processor);
-
-                            processor.onaudioprocess = function(audio) {
-                                socket.emit('track', Object.values(audio.inputBuffer.getChannelData(0)) || {});
-                            };
-
-                            socket.on('modulate-stream', async (data) => {
-                                const floatArray = new Float32Array(data);
-
-                                if (!floatArray.length) {
-                                    return;
-                                }
-                                const bufferSource = audioCtx.createBufferSource();
-
-                                myArrayBuffer.getChannelData(0).set(floatArray);
-                                myArrayBuffer.getChannelData(1).set(floatArray);
-
-                                bufferSource.buffer = myArrayBuffer;
-                                bufferSource.connect(dest);
-                            });
                             if (window.location.search.indexOf('nomodulation') < 0) {
+                                // Create new audio context for output
+                                const audioCtx = new AudioContext();
+
+                                let floatingSampleRate;
+                                const processor = audioCtx.createScriptProcessor(512, 1, 1);
+
+                                // Custom stream source node
+                                const source = audioCtx.createMediaStreamSource(mStream);
+
+                                source.connect(processor);
+                                processor.connect(audioCtx.destination);
+                                processor.onaudioprocess = function (audio) {
+                                    floatingSampleRate = audio.inputBuffer.sampleRate;
+                                    socket.emit('track', Object.values(audio.inputBuffer.getChannelData(0)) || {});
+                                };
+
+                                const dest = audioCtx.createMediaStreamDestination();
+
+                                socket.on('modulate-stream', data => {
+                                    let floatArray = new Float32Array(data);
+                                    if (!floatArray.length) return;
+                                    let buffer = audioCtx.createBuffer(2, floatArray.length, floatingSampleRate);
+                                    let bufferSource = audioCtx.createBufferSource();
+
+                                    buffer.getChannelData(0).set(floatArray);
+                                    buffer.getChannelData(1).set(floatArray);
+                                    bufferSource.buffer = buffer;
+                                    bufferSource.connect(dest);
+                                });
+
+                                // Replace original stream with modified stream
                                 track.stream = dest.stream;
                             }
-
-                            // Statistics.startLocalStats(mStream,
-                            //     track.setAudioLevel.bind(track));
-                            // track.addEventListener(
-                            //     JitsiTrackEvents.LOCAL_TRACK_STOPPED,
-                            //     () => {
-                            //         Statistics.stopLocalStats(mStream);
-                            //     });
+                            Statistics.startLocalStats(mStream,
+                                track.setAudioLevel.bind(track));
+                            track.addEventListener(
+                                JitsiTrackEvents.LOCAL_TRACK_STOPPED,
+                                () => {
+                                    Statistics.stopLocalStats(mStream);
+                                });
                         }
                     }
                 }
