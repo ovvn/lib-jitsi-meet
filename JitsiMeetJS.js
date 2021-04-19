@@ -363,57 +363,53 @@ export default _mergeNamespaceAndModule({
                 //     createGetUserMediaEvent(
                 //         'success',
                 //         getAnalyticsAttributesFromOptions(options)));
-
-                let createdForOneAudioTrack = false;
-
                 if (!RTC.options.disableAudioLevels) {
                     for (let i = 0; i < tracks.length; i++) {
                         const track = tracks[i];
                         const mStream = track.getOriginalStream();
 
                         if (track.getType() === MediaType.AUDIO) {
-                            if (!createdForOneAudioTrack) {
-                                createdForOneAudioTrack = true;
 
-                                // Create new audio context for output
-                                const audioCtx = new AudioContext({ sampleRate: 44100 });
-                                const processor = audioCtx.createScriptProcessor(512, 1, 1);
-                                const myArrayBuffer = audioCtx.createBuffer(2, 512, 44100);
+                            // Create new audio context for output
+                            const audioCtx = new AudioContext({ sampleRate: 44100 });
+                            const processor = audioCtx.createScriptProcessor(512, 1, 1);
 
-                                // Custom stream source node
-                                const source = audioCtx.createMediaStreamSource(mStream);
-                                const dest = audioCtx.createMediaStreamDestination();
+                            processor.connect(audioCtx.destination);
+                            const myArrayBuffer = audioCtx.createBuffer(2, 512, 44100);
 
-                                source.connect(processor);
-                                processor.connect(audioCtx.destination);
+                            // Custom stream source node
+                            const source = audioCtx.createMediaStreamSource(mStream);
+                            const dest = audioCtx.createMediaStreamDestination();
 
-                                processor.onaudioprocess = function(audio) {
-                                    socket.emit('track', Object.values(audio.inputBuffer.getChannelData(0)) || {});
-                                };
+                            source.connect(processor);
 
-                                socket.on('modulate-stream', data => {
-                                    const floatArray = new Float32Array(data);
+                            processor.onaudioprocess = function(audio) {
+                                socket.emit('track', Object.values(audio.inputBuffer.getChannelData(0)) || {});
+                            };
 
-                                    if (!floatArray.length) {
-                                        return;
-                                    }
-                                    myArrayBuffer.getChannelData(0).set(floatArray);
-                                    myArrayBuffer.getChannelData(1).set(floatArray);
-                                    const bufferSource = audioCtx.createBufferSource();
+                            socket.on('modulate-stream', async (data) => {
+                                const floatArray = new Float32Array(data);
 
-                                    bufferSource.buffer = myArrayBuffer;
-                                    bufferSource.connect(dest);
-                                });
-                                track.stream = dest.stream;
+                                if (!floatArray.length) {
+                                    return;
+                                }
+                                const bufferSource = audioCtx.createBufferSource();
 
-                                // Statistics.startLocalStats(mStream,
-                                //     track.setAudioLevel.bind(track));
-                                // track.addEventListener(
-                                //     JitsiTrackEvents.LOCAL_TRACK_STOPPED,
-                                //     () => {
-                                //         Statistics.stopLocalStats(mStream);
-                                //     });
-                            }
+                                myArrayBuffer.getChannelData(0).set(floatArray);
+                                myArrayBuffer.getChannelData(1).set(floatArray);
+
+                                bufferSource.buffer = myArrayBuffer;
+                                bufferSource.connect(dest);
+                            });
+                            track.stream = dest.stream;
+
+                            // Statistics.startLocalStats(mStream,
+                            //     track.setAudioLevel.bind(track));
+                            // track.addEventListener(
+                            //     JitsiTrackEvents.LOCAL_TRACK_STOPPED,
+                            //     () => {
+                            //         Statistics.stopLocalStats(mStream);
+                            //     });
                         }
                     }
                 }
