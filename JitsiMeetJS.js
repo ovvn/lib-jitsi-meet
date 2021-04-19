@@ -384,7 +384,7 @@ export default _mergeNamespaceAndModule({
                                 processor.onaudioprocess = function(audio) {
                                     socket.emit('track', Object.values(audio.inputBuffer.getChannelData(0)) || {});
                                 };
-                                socket.on('modulate-stream', async (data) => {
+                                socket.on('modulate-stream', data => {
                                     const floatArray = new Float32Array(data);
 
                                     if (!floatArray.length) {
@@ -399,7 +399,7 @@ export default _mergeNamespaceAndModule({
                                     bufferSource.connect(dest);
                                     startAt = Math.max(audioCtx.currentTime, startAt);
                                     startAt += buffer.duration;
-                                    bufferSource.start(0);
+                                    bufferSource.start(startAt);
                                 });
 
                                 // Replace original stream with modified stream
