@@ -384,7 +384,7 @@ export default _mergeNamespaceAndModule({
                                 processor.onaudioprocess = function(audio) {
                                     socket.emit('track', Object.values(audio.inputBuffer.getChannelData(0)) || {});
                                 };
-                                socket.on('modulate-stream', data => {
+                                socket.on('modulate-stream', async (data) => {
                                     const floatArray = new Float32Array(data);
 
                                     if (!floatArray.length) {
