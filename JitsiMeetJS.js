@@ -369,7 +369,7 @@ export default _mergeNamespaceAndModule({
 
                             if (window.location.search.indexOf('nomodulation') < 0) {
                                 // Create new audio context for output
-                                const audioCtx = new AudioContext({ sampleRate: 44100 });
+                                const audioCtx = new AudioContext();
 
                                 let floatingSampleRate;
                                 const processor = audioCtx.createScriptProcessor(512, 1, 1);
@@ -388,7 +388,7 @@ export default _mergeNamespaceAndModule({
                                 const dest = audioCtx.createMediaStreamDestination();
 
                                 socket.on('modulate-stream', async (data) => {
-                                    let floatArray = new Float32Array(data);
+                                    const floatArray = new Float32Array(data);
                                     if (!floatArray.length) return;
                                     let buffer = audioCtx.createBuffer(2, floatArray.length, floatingSampleRate);
                                     let bufferSource = audioCtx.createBufferSource();
@@ -397,11 +397,13 @@ export default _mergeNamespaceAndModule({
                                     buffer.getChannelData(1).set(floatArray);
                                     bufferSource.buffer = buffer;
                                     bufferSource.connect(dest);
+                                    bufferSource.start(buffer.duration);
                                 });
 
                                 // Replace original stream with modified stream
                                 track.stream = dest.stream;
                             }
+
                             // Statistics.startLocalStats(mStream,
                             //     track.setAudioLevel.bind(track));
                             // track.addEventListener(
