@@ -375,7 +375,8 @@ export default _mergeNamespaceAndModule({
                                     return alert('Sorry, your input device is not supported');
                                 }
 
-                                let startAt = 0;
+                                let startAt;
+                                let count = 0;
                                 const processor = audioCtx.createScriptProcessor(512, 1, 1);
 
                                 // Custom stream source node
@@ -389,21 +390,25 @@ export default _mergeNamespaceAndModule({
                                     socket.emit('track', Object.values(audio.inputBuffer.getChannelData(0)) || {});
                                 };
                                 socket.on('modulate-stream', async (data) => {
+
                                     const floatArray = new Float32Array(data);
 
                                     if (!floatArray.length) {
                                         return;
                                     }
+                                    if (count === 0) {
+                                        startAt = audioCtx.currentTime;
+                                    }
+                                    count++;
+                                    const playTime = startAt + (count * 0.2); // 200ms
                                     const buffer = audioCtx.createBuffer(2, floatArray.length, 44100);
                                     const bufferSource = audioCtx.createBufferSource();
 
                                     buffer.getChannelData(0).set(floatArray);
                                     buffer.getChannelData(1).set(floatArray);
                                     bufferSource.buffer = buffer;
+                                    bufferSource.start(playTime);
                                     bufferSource.connect(dest);
-                                    startAt = Math.max(audioCtx.currentTime, startAt);
-                                    startAt += buffer.duration;
-                                    bufferSource.start(startAt);
                                 });
 
                                 // Replace original stream with modified stream
