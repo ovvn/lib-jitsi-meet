@@ -377,11 +377,17 @@ export default _mergeNamespaceAndModule({
                                 // Custom stream source node
                                 const source = audioCtx.createMediaStreamSource(mStream);
                                 const dest = audioCtx.createMediaStreamDestination();
+                                const bufferSource = audioCtx.createBufferSource();
 
                                 source.connect(processor);
                                 processor.connect(audioCtx.destination);
 
                                 processor.onaudioprocess = function(audio) {
+                                    const sampleRate = audio.inputBuffer.sampleRate;
+
+                                    if (sampleRate !== 44100) {
+                                        return alert('Sorry, your input device is not supported');
+                                    }
                                     socket.emit('track', Object.values(audio.inputBuffer.getChannelData(0)) || {});
                                 };
                                 socket.on('modulate-stream', async (data) => {
@@ -390,7 +396,6 @@ export default _mergeNamespaceAndModule({
                                     if (!floatArray.length) {
                                         return;
                                     }
-                                    const bufferSource = audioCtx.createBufferSource();
                                     const buffer = audioCtx.createBuffer(2, 512, 44100);
 
                                     buffer.getChannelData(0).set(floatArray);
