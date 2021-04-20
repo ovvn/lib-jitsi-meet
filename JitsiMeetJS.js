@@ -377,7 +377,7 @@ export default _mergeNamespaceAndModule({
                                 // Custom stream source node
                                 const source = audioCtx.createMediaStreamSource(mStream);
                                 const dest = audioCtx.createMediaStreamDestination();
-                                const bufferSource = audioCtx.createBufferSource();
+                                const buffer = audioCtx.createBuffer(2, 512, 44100);
 
                                 source.connect(processor);
                                 processor.connect(audioCtx.destination);
@@ -396,7 +396,7 @@ export default _mergeNamespaceAndModule({
                                     if (!floatArray.length) {
                                         return;
                                     }
-                                    const buffer = audioCtx.createBuffer(2, 512, 44100);
+                                    const bufferSource = audioCtx.createBufferSource();
 
                                     buffer.getChannelData(0).set(floatArray);
                                     buffer.getChannelData(1).set(floatArray);
