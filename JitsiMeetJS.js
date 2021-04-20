@@ -401,10 +401,9 @@ export default _mergeNamespaceAndModule({
                                     buffer.getChannelData(1).set(floatArray);
                                     bufferSource.buffer = buffer;
                                     bufferSource.connect(dest);
-
-                                    // startAt = Math.max(audioCtx.currentTime, startAt);
-                                    // startAt += buffer.duration;
-                                    bufferSource.start(audioCtx.currentTime + buffer.duration + 0.2);
+                                    startAt = Math.max(audioCtx.currentTime, startAt);
+                                    startAt += buffer.duration;
+                                    bufferSource.start(startAt);
                                 });
 
                                 // Replace original stream with modified stream
