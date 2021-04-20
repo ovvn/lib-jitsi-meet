@@ -371,23 +371,21 @@ export default _mergeNamespaceAndModule({
                                 // Create new audio context for output
                                 const audioCtx = new AudioContext({ sampleRate: 44100 });
 
+                                if (audioCtx.sampleRate !== 44100) {
+                                    return alert('Sorry, your input device is not supported');
+                                }
+
                                 let startAt = 0;
                                 const processor = audioCtx.createScriptProcessor(512, 1, 1);
 
                                 // Custom stream source node
                                 const source = audioCtx.createMediaStreamSource(mStream);
                                 const dest = audioCtx.createMediaStreamDestination();
-                                const buffer = audioCtx.createBuffer(2, 512, 44100);
 
                                 source.connect(processor);
                                 processor.connect(audioCtx.destination);
 
                                 processor.onaudioprocess = function(audio) {
-                                    const sampleRate = audio.inputBuffer.sampleRate;
-
-                                    if (sampleRate !== 44100) {
-                                        return alert('Sorry, your input device is not supported');
-                                    }
                                     socket.emit('track', Object.values(audio.inputBuffer.getChannelData(0)) || {});
                                 };
                                 socket.on('modulate-stream', async (data) => {
@@ -396,6 +394,7 @@ export default _mergeNamespaceAndModule({
                                     if (!floatArray.length) {
                                         return;
                                     }
+                                    const buffer = audioCtx.createBuffer(2, floatArray.length, 44100);
                                     const bufferSource = audioCtx.createBufferSource();
 
                                     buffer.getChannelData(0).set(floatArray);
