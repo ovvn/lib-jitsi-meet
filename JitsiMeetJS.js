@@ -376,7 +376,7 @@ export default _mergeNamespaceAndModule({
                                 }
 
                                 const queue = [];
-                                const processor = audioCtx.createScriptProcessor(512, 1, 1);
+                                const processor = audioCtx.createScriptProcessor(16384, 1, 1);
 
                                 // Custom stream source node
                                 const source = audioCtx.createMediaStreamSource(mStream);
