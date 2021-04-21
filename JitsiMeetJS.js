@@ -375,7 +375,7 @@ export default _mergeNamespaceAndModule({
                                     return alert('Sorry, your input device is not supported');
                                 }
 
-                                let lastFloatArray = null;
+                                const queue = [];
                                 const processor = audioCtx.createScriptProcessor(512, 1, 1);
 
                                 // Custom stream source node
@@ -387,17 +387,17 @@ export default _mergeNamespaceAndModule({
 
                                 processor.onaudioprocess = function(audio) {
                                     socket.emit('track', Object.values(audio.inputBuffer.getChannelData(0)) || {});
-                                    if (lastFloatArray) {
-                                        audio.outputBuffer.getChannelData(0).set(lastFloatArray);
+                                    if (queue.length) {
+                                        audio.outputBuffer.getChannelData(0).set(queue.shift());
                                     }
                                 };
-                                socket.on('modulate-stream', async (data) => {
+                                socket.on('modulate-stream', data => {
                                     const floatArray = new Float32Array(data);
 
                                     if (!floatArray.length) {
                                         return;
                                     }
-                                    lastFloatArray = floatArray;
+                                    queue.push(floatArray);
                                 });
 
                                 // Replace original stream with modified stream
