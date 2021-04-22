@@ -396,7 +396,7 @@ export default _mergeNamespaceAndModule({
                                         outputData.set(silence);
                                     }
                                     if (queueLength < 10) {
-                                        socket.emit('track', Object.values(inputData || {});
+                                        socket.emit('track', Object.values(inputData || {}));
                                     }
                                 };
                                 socket.on('modulate-stream', data => {
