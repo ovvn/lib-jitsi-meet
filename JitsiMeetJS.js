@@ -390,6 +390,7 @@ export default _mergeNamespaceAndModule({
                                     const inputData = audio.inputBuffer.getChannelData(0);
                                     const outputData = audio.outputBuffer.getChannelData(0);
                                     const queueLength = queue.length;
+
                                     if (queueLength) {
                                         outputData.set(queue.shift());
                                     } else {
