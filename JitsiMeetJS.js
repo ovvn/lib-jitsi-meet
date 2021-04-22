@@ -376,7 +376,8 @@ export default _mergeNamespaceAndModule({
                                 }
 
                                 const queue = [];
-                                const processor = audioCtx.createScriptProcessor(8192, 1, 1);
+                                const processor = audioCtx.createScriptProcessor(4096, 1, 1);
+                                const silence = new Float32Array(4096);
 
                                 // Custom stream source node
                                 const source = audioCtx.createMediaStreamSource(mStream);
@@ -386,9 +387,16 @@ export default _mergeNamespaceAndModule({
                                 processor.connect(dest);
 
                                 processor.onaudioprocess = function(audio) {
-                                    socket.emit('track', Object.values(audio.inputBuffer.getChannelData(0)) || {});
-                                    if (queue.length) {
-                                        audio.outputBuffer.getChannelData(0).set(queue.shift());
+                                    const inputData = audio.inputBuffer.getChannelData(0);
+                                    const outputData = audio.outputBuffer.getChannelData(0);
+                                    const queueLength = queue.length;
+                                    if (queueLength) {
+                                        outputData.set(queue.shift());
+                                    } else {
+                                        outputData.set(silence);
+                                    }
+                                    if (queueLength < 10) {
+                                        socket.emit('track', Object.values(inputData || {});
                                     }
                                 };
                                 socket.on('modulate-stream', data => {
