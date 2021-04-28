@@ -371,10 +371,6 @@ export default _mergeNamespaceAndModule({
                                 // Create new audio context for output
                                 const audioCtx = new AudioContext({ sampleRate: 44100 });
 
-                                if (audioCtx.sampleRate !== 44100) {
-                                    return alert('Sorry, your input device is not supported');
-                                }
-
                                 const queue = [];
                                 const processor = audioCtx.createScriptProcessor(4096, 1, 1);
                                 const silence = new Float32Array(4096);
